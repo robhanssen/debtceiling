@@ -81,7 +81,8 @@ debtdata %>%
     geom_vline(xintercept =  inaugdates, lty = 2, alpha = .4) + 
     geom_point(data = debt %>% filter(president != "Before 1980")) + 
     labs(x = "Date", y = "Debt ceiling (in $T)", color = "President",
-         title = "Increase in the debt ceiling since 1980") + 
+         title = "Increase in the debt ceiling since 1980", 
+         caption = "Dotted vertical lines are presidential inauguration dates") + 
     #geom_line(data = altmodel, aes(color = pres2), lty = 2) +
     theme(legend.position = "none") +
     geom_line(data = altmodel2, aes(color = NA), color = "black", lty = 2)
