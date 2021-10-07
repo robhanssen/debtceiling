@@ -26,6 +26,9 @@ debtmodel <- function(tbl) {
     lm(log10(debt_ceiling) ~ date, data = tbl)
 }
 
+altdebtmodel <- function(tbl) {
+    lm(log10(debt_ceiling) ~ date + pres2, data = tbl)
+} 
 
 debtmodels <-
     debt %>% 
@@ -59,6 +62,15 @@ altmodel <-
     unnest(debtdata) %>% 
     mutate(debt_ceiling = 10^.fitted)
 
+altmodel2 <-
+    debt %>%
+    filter(date > as_datetime("1981-12-31")) %>%
+    mutate(pres2 = ifelse(date < as_datetime("1991-12-31"), "Group 1", "Group 2")) %>%
+    mutate(pres2 = factor(pres2)) %>%
+    lm(log10(debt_ceiling) ~ date * pres2, data = .) %>% 
+    augment() %>%
+    mutate(debt_ceiling = 10^.fitted)
+    
 debtdata %>%
     filter(president != "Before 1980") %>%
     group_by(president) %>%
@@ -70,7 +82,8 @@ debtdata %>%
     geom_point(data = debt %>% filter(president != "Before 1980")) + 
     labs(x = "Date", y = "Debt ceiling (in $T)", color = "President",
          title = "Increase in the debt ceiling since 1980") + 
-    geom_line(data = altmodel, aes(color = pres2), lty = 2) +
-    theme(legend.position = "none")
+    #geom_line(data = altmodel, aes(color = pres2), lty = 2) +
+    theme(legend.position = "none") +
+    geom_line(data = altmodel2, aes(color = NA), color = "black", lty = 2)
 
     ggsave("debtceiling-since-1980.png", width = 6, height = 6)
