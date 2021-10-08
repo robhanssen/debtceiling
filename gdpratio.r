@@ -15,6 +15,10 @@ gdp <- read_csv("gdp.csv") %>%
         mutate(date = as_datetime(date)) %>%
         rename(floordate = "date")
 
+# small fudge to cram in the last date point. Assumption is GDP growth of 500 B
+gdpadd <- tibble(floordate = as_datetime("2021-07-01"), gdp = last(gdp$gdp)+500)
+gdp <- bind_rows(gdp, gdpadd)
+
 debt <- read_csv("debtceiling.csv") %>%
         janitor::clean_names() %>%
         select(date, debt_ceiling) %>%
@@ -28,9 +32,9 @@ debt <- read_csv("debtceiling.csv") %>%
         mutate(gdpratio = debt_ceiling / gdp)
 
 
-debt %>% 
+debt %>%
     filter(date > as_datetime("1979-12-31")) %>%
-    ggplot() + 
+    ggplot() +
     aes(date, gdpratio) +
     geom_point() +
     scale_y_continuous(breaks = .2 * 0:100, limits = c(0, NA), labels = scales::percent_format()) + 
