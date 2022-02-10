@@ -60,24 +60,54 @@ gdpmodel <-
 gdpmodel %>%
         mutate(modelq = map(gdpmodel, function(x) x %>% glance())) %>% unnest(modelq)
 
+modelconstant <-
+        gdpmodel %>%
+        mutate(modelq = map(gdpmodel, function(x) x %>% tidy())) %>% unnest(modelq) %>%
+        filter(term == "date") %>%
+        pull(estimate)
+
+pct_increase <- scales::percent(10 ^ (modelconstant * 86400 *365) - 1, accuracy = .1)
+
 ten_years = 86400 * 365 * 10
 
-gdpmodel %>%
+predictions <-
+        gdpmodel %>%
         mutate(modelq = map(gdpmodel,
-                           function(x) x %>% augment(newdata = tibble(date = seq(cutoff_date_lo, cutoff_date_lo + ten_years, ten_years/100))))) %>%
+                           function(x) x %>% augment(interval = "confidence", newdata = tibble(date = seq(cutoff_date_lo, cutoff_date_hi + .4 * ten_years, ten_years/100))))) %>%
         unnest(modelq) %>%
-        #mutate(date = as_datetime(date)) %>%
+        mutate(across(.cols = .fitted:.upper, .fns =~10^.x))
+
+gdp_max_pred <- predictions %>% filter(date < as_datetime("2019-11-10")) %>% slice_max(date, n = 1) %>% select(.fitted) %>% pull(.fitted)
+
+gdp_max_real <- gdp %>% filter(floordate < as_datetime("2019-11-05")) %>% slice_max(floordate, n = 1) %>% pull(gdp)
+
+real_growth <- scales::dollar(-gdp_max_pred + gdp_max_real, accuracy = 1, suffix = "B")
+real_growth_per <- scales::percent((-gdp_max_pred + gdp_max_real)/gdp_max_real, accuracy = .01)
+
+comment <- paste0("Difference between Obama model\nand outcome : ",
+                  real_growth,
+                  " (", real_growth_per,") ",
+                  "over 3 years")
+
+predictions %>%
         ggplot + 
-        aes(x = date, y = 10^.fitted) + 
+        aes(x = date, y = .fitted) + 
         geom_line(lty = 2) + 
         geom_point(data = gdp %>% filter(floordate > cutoff_date_lo), aes(x = floordate, y = gdp)) + 
         #scale_x_date(limits = c(cutoff_date_lo, NA)) + 
-        scale_y_log10(limit = c(14000, NA)) + 
+        scale_y_continuous(limit = c(14000, NA)) +
+        geom_line(aes(y = .lower), color = "gray50", lty = 1) + 
+        geom_line(aes(y = .upper), color = "gray50", lty = 1) +
         geom_vline(xintercept = as_datetime("2017-01-21"), lty = 2, color = "gray50") + 
         geom_vline(xintercept = as_datetime("2021-01-21"), lty = 2, color = "gray50") + 
-        geom_vline(xintercept = as_datetime("2018-04-01"), lty = 2, color = "red") + 
+        #geom_vline(xintercept = as_datetime("2019-10-05"), lty = 2, color = "red") + 
+        geom_segment(aes(x = as_datetime("2019-10-05"), xend = as_datetime("2019-10-05"), y = 23000, yend = 21000), color = "red", lty = 2)+
+        geom_segment(aes(x = cutoff_date_lo, xend = cutoff_date_hi, y = 14001, yend = 14001), color = "red") +
+        geom_segment(aes(x = cutoff_date_hi, xend = cutoff_date_hi + .31 * ten_years, y = 14001, yend = 14001), color = "darkgreen") +
+        annotate("label", x = as_datetime("2018-06-01"), y = 23000, label = comment) +
+        annotate("label", x = as_datetime("2014-11-01"), y = 18000, label = pct_increase) +
         labs(x = "Date", 
-             y = "GDP in ($)",
+             y = "GDP in (billions of $)",
              caption = "Model trained between 2009 and 2017 and predicted into 2020")
 
-
+ggsave("graphs/real-growth.png", width = 6, height = 6)
