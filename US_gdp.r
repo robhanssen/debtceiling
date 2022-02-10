@@ -35,10 +35,10 @@ gdp_plot %>%
     geom_vline(xintercept = inaugdates, lty = 2, alpha = .3) +
     theme_light() +
     labs(x = "Date",
-         y = "ratio Public Debt / GDP",
+         y = "US GDP",
          caption = "Dashed vertical line indicate inauguration dates",
-         title = "Ratio of Public Debt to GDP since 1980") +
+         title = "US GDP since 1980") +
     scale_color_manual(values = partycolor) + 
     theme(legend.position = "none")
 
-# ggsave("graphs/debt-to-gdp-ratio-since-1980.png", width = 6, height = 6)
+ ggsave("graphs/us-gdp-since-1980.png", width = 6, height = 6)
