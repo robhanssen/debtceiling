@@ -182,3 +182,54 @@ p <- gdp_full_scale + gdp_diff_scale
 
 
 ggsave("graphs/real-growth.png", width = 12, height = 6, plot = p)
+
+
+#
+#
+#
+#
+
+cutoff_date_lo <- as_datetime("2020-09-01")
+cutoff_date_hi <- as_datetime(today())
+
+gdpmodel <-
+        gdp %>% 
+        ungroup() %>%
+        rename(date = "floordate") %>%
+        filter(date > cutoff_date_lo, date < cutoff_date_hi) %>%
+        nest() %>%
+        mutate(gdpmodel = map(data, function(tbl) lm(log10(gdp) ~ date, data = tbl)))
+
+rsq <-
+        gdpmodel %>%
+        mutate(modelq = map(gdpmodel, function(x) x %>% glance())) %>% unnest(modelq) %>% pull(r.squared)
+
+
+model_constant_pre2020 <- modelconstant
+
+modelconstant <-
+        gdpmodel %>%
+        mutate(modelq = map(gdpmodel, function(x) x %>% tidy())) %>% unnest(modelq) %>%
+        filter(term == "date") %>%
+        pull(estimate)
+
+pct_increase <- scales::percent(10 ^ (modelconstant * 86400 *365) - 1, accuracy = .1)
+
+predict_post_2020 <-
+        gdpmodel %>%
+        mutate(modelq = map(gdpmodel,
+                           function(x) x %>% augment(interval = "confidence"))) %>%
+        unnest(modelq) %>%
+        mutate(across(.cols = .fitted:.upper, .fns =~10^.x)) 
+
+model_contant_inc <- 10^(86400*365*(modelconstant - model_constant_pre2020)) - 1
+model_contant_comment <- paste0("Estimate inflation: ", scales::percent(model_contant_inc, accuracy = .1),
+                                " over Obama model")
+
+
+gdp_full_scale +
+        geom_line(data = predict_post_2020, aes(y = .fitted), lty = 2, color = "gray50") +
+        annotate("label", x = as_datetime("2020-01-01"), y = 24000, label = paste0(pct_increase, "\nr.sq = ", scales::pvalue(rsq)))  +
+        labs(subtitle = model_contant_comment)
+
+ggsave("graphs/estimating-inflation.png", width = 6, height = 6)        
