@@ -1,4 +1,3 @@
-library(patchwork)
 source("std/stdpackages.r")
 source("std/stdfunctions.r")
 
