@@ -145,8 +145,8 @@ predictions_diff <-
         mutate(across(.cols = .fitted:.upper, .fns =~10^.x)) %>%
         inner_join(gdp, by = c("date" = "floordate")) %>%
         mutate(real_growth = gdp - .fitted,
-               real_lo = gdp - .lower,
-               real_hi = gdp - .upper)
+               real_lo = .fitted - .lower,
+               real_hi = .fitted - .upper)
 
 max_date <- max(gdp$floordate)
 
@@ -188,7 +188,7 @@ ggsave("graphs/real-growth.png", width = 12, height = 6, plot = p)
 #
 #
 
-cutoff_date_lo <- as_datetime("2020-09-01")
+cutoff_date_lo <- as_datetime("2020-05-01")
 cutoff_date_hi <- as_datetime(today())
 
 gdpmodel <-
@@ -226,9 +226,17 @@ model_contant_comment <- paste0("Estimate inflation: ", scales::percent(model_co
                                 " over Obama model")
 
 
-gdp_full_scale +
+gdp2 <- gdp_full_scale +
         geom_line(data = predict_post_2020, aes(y = .fitted), lty = 2, color = "gray50") +
         annotate("label", x = as_datetime("2020-01-01"), y = 24000, label = paste0(pct_increase, "\nr.sq = ", scales::pvalue(rsq)))  +
         labs(subtitle = model_contant_comment)
 
-ggsave("graphs/estimating-inflation.png", width = 6, height = 6)        
+ggsave("graphs/estimating-inflation.png", width = 6, height = 6, plot = gdp2) 
+
+
+
+
+p <- gdp2 + gdp_diff_scale
+
+
+ggsave("graphs/real-growth2.png", width = 12, height = 6, plot = p)
