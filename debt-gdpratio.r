@@ -23,7 +23,7 @@ debt <-
         mutate(floordate = floor_date(floordate, unit = "quarter")) %>%
         # mutate(date = as_datetime(date),
         #         floordate = as_datetime(floordate)) %>%
-        filter(!is.na(debt)) %>%
+        filter(!is.na(gfdebtn)) %>%
         inner_join(gdp) %>%
         mutate(gdpratio = gfdebtn / (1000*gdp)) %>%
         left_join(presidentinfo) %>% 
