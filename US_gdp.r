@@ -30,8 +30,8 @@ gdp_allyears <-
     ggplot() +
     aes(floordate, gdp, color = party, group = FALSE) +
     geom_line() +
-    scale_y_log10(
-                        limits = c(3000, NA),
+    scale_y_log10(      breaks = c(1, 2, 5) * 10^rep(1:10, each = 3),
+                        limits = c(2000, NA),
                         labels = scales::dollar_format()) +
     geom_vline(xintercept = inaugdates, lty = 2, alpha = .3) +
     theme_light() +
