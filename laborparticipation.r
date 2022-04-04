@@ -8,7 +8,7 @@ cutoff_date <- as.Date("1990-01-01")
 
 presidents <-
     read_csv("sources/presidents.csv") %>%
-    mutate(date = lubridate::floor_date(inaugdate, unit = "month")) %>%
+    mutate(date = lubridate::ceiling_date(inaugdate, unit = "month")) %>%
     arrange(date)
 
 labor <-
@@ -30,7 +30,7 @@ labor %>%
         x = "Date",
         y = "Labor participartion rate (in %)",
         color = "President affiliation",
-        title = "Labor participation",
+        title = "Labor participation in the United States",
         caption = paste0("Source: ",
                           source,
                           "(until ",
