@@ -4,15 +4,17 @@ theme_set(theme_light())
 
 source <- "https://fred.stlouisfed.org/series/CIVPART"
 
-cutoff_date <- as.Date("2000-01-01")
+cutoff_date <- as.Date("1990-01-01")
 
 presidents <-
     read_csv("sources/presidents.csv") %>%
-    mutate(date = lubridate::floor_date(inaugdate, unit = "month"))
+    mutate(date = lubridate::floor_date(inaugdate, unit = "month")) %>%
+    arrange(date)
 
 labor <-
     read_csv("sources/civpart.csv") %>%
     janitor::clean_names() %>%
+    arrange(date) %>%
     left_join(presidents) %>%
     fill(c(party, president), .direction = "down") %>%
     select(-inaugdate)
