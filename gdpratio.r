@@ -11,6 +11,9 @@ gdp <- read_csv("sources/gdp.csv") %>%
         mutate(date = as_datetime(date)) %>%
         rename(floordate = "date")
 
+# t <- quantmod::getSymbols("GDP", src = "FRED", auto.assign = FALSE)
+# gdp <- tibble::tibble(floordate = index(t), gdp = as.numeric(t))
+
 gdp %>%
         filter(floordate > as_datetime("1979-12-31")) %>%
         ggplot() +

@@ -1,15 +1,21 @@
 source("std/stdpackages.r")
 source("std/stdfunctions.r")
 
-debt <- read_csv("sources/publicdebt.csv") %>%
-        janitor::clean_names() %>%
-        mutate(date = as_datetime(date)) %>%
-        rename(floordate = "date")
+# debt <- read_csv("sources/publicdebt.csv") %>%
+#         janitor::clean_names() %>%
+#         mutate(date = as_datetime(date)) %>%
+#         rename(floordate = "date")
 
-gdp <- read_csv("sources/gdp.csv") %>%
-        janitor::clean_names() %>%
-        mutate(date = as_datetime(date)) %>%
-        rename(floordate = "date")
+t <- quantmod::getSymbols("GFDEBTN", src= "FRED", auto.assign = FALSE)
+debt <- tibble::tibble(floordate = zoo::index(t), gfdebtn = as.numeric(t))
+
+# gdp <- read_csv("sources/gdp.csv") %>%
+#         janitor::clean_names() %>%
+#         mutate(date = as_datetime(date)) %>%
+#         rename(floordate = "date")
+
+t <- quantmod::getSymbols("GDP", src= "FRED", auto.assign = FALSE)
+gdp <- tibble::tibble(floordate = zoo::index(t), gdp = as.numeric(t))
 
 presidentinfo <-
         presidentinfo %>% 
