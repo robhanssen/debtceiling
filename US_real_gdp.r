@@ -6,7 +6,7 @@ theme_set(theme_light())
 
 source("quantmod-variants/functions.r")
 
-gdp <- retrieve_data("GDP", "FRED")
+gdp <- retrieve_data("GDPC1", "FRED")
 
 gdp_plot <-
     gdp %>%
@@ -144,7 +144,7 @@ gdp_full_scale <-
     ) +
     annotate("label",
         x = ymd("2018-06-01"),
-        y = 23000,
+        y = 20000,
         label = comment
     ) +
     annotate("label",
@@ -154,7 +154,7 @@ gdp_full_scale <-
     ) +
     labs(
         x = "Date",
-        y = "GDP in (billions of $)",
+        y = "Real GDP in (billions of $)",
         caption = "Model trained between 2009 and 2017 and predicted into 2021"
     )
 
@@ -235,13 +235,13 @@ gdp_diff_scale <-
     ) +
     labs(
         x = "Date",
-        y = "GDP growth above Obama model (in $B)",
+        y = "Real GDP growth above Obama model (in $B)",
         caption = "Model trained between 2009 and 2017 and predicted into 2021"
     )
 
 p <- gdp_full_scale + gdp_diff_scale
 
-ggsave("quantmod-variants/real-growth.png", width = 12, height = 6, plot = p)
+ggsave("quantmod-variants/real-gdp-growth.png", width = 12, height = 6, plot = p)
 
 #
 #
@@ -310,11 +310,11 @@ gdp2 <- gdp_full_scale +
     ) +
     labs(subtitle = model_contant_comment)
 
-ggsave("quantmod-variants/estimating-inflation.png",
+ggsave("quantmod-variants/estimating-real-inflation.png",
     width = 6,
     height = 6,
     plot = gdp2
 )
 p <- gdp2 + gdp_diff_scale
 
-ggsave("quantmod-variants/real-growth2.png", width = 12, height = 6, plot = p)
+ggsave("quantmod-variants/real-gdp-growth2.png", width = 12, height = 6, plot = p)
