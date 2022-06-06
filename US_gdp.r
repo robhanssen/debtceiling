@@ -36,6 +36,10 @@ gdp_plot %>%
     scale_color_manual(values = partycolor) +
     theme(legend.position = "none")
 
+ggsave("graphs/us-gdp-since-1980.png",
+    width = 6,
+    height = 6
+)
 
 #
 # Obama to Trump transition
@@ -157,12 +161,6 @@ gdp_full_scale <-
         y = "GDP in (billions of $)",
         caption = "Model trained between 2009 and 2017 and predicted into 2021"
     )
-
-# ggsave("graphs/us-gdp-since-1980.png",
-#     width = 6,
-#     height = 6,
-#     plot = gdp_full_scale
-# )
 
 #
 # difference plot

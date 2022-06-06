@@ -1,9 +1,9 @@
 library(tidyverse)
 library(lubridate)
-theme_set(themelight())
+theme_set(theme_light())
 
-source("quantmod-variants/functions.r")
-# retrieve data
+source("functions.r")
+
 debt <- get_index("GFDEBTN")
 gdp <- get_index("GDP")
 
@@ -38,7 +38,7 @@ debt_gdp_ratio %>%
     scale_color_manual(values = partycolor) +
     theme(legend.position = "none")
 
-ggsave("quantmod-variants/debt-to-gdp-ratio-since-1980.png",
+ggsave("graphs/debt-to-gdp-ratio-since-1980.png",
     width = 6,
     height = 6
 )
