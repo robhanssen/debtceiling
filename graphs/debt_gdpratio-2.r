@@ -3,7 +3,7 @@ library(lubridate)
 theme_set(themelight())
 
 source("quantmod-variants/functions.r")
-
+# retrieve data
 debt <- get_index("GFDEBTN")
 gdp <- get_index("GDP")
 
